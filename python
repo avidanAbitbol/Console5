@@ -1,0 +1,44 @@
+import os
+# Get the list of files in the directory
+path = (r'C:\Users\avida\Desktop\main_path\py_files\sorting\onnx\pics')
+files = os.listdir(path)
+filenames = [file for file in files if file.endswith(".bmp")]
+import onnxruntime as rt
+import numpy as np
+from PIL import Image
+modod=r'C:\Users\avida\Desktop\main_path\py_files\sorting\onnx\model_1.onnx'
+sess = rt.InferenceSession(modod)
+
+image=Image.open(path+"\\"+"TopoImage0.bmp")
+input_image = image
+input_data = np.array(input_image)
+input_data=input_data[:512,:540]
+input_data= np.resize(input_data,(1,512,540,1))
+input_name = [sess.get_inputs()[0].name]
+output_name = [sess.get_outputs()[0].name]
+
+input_shape = sess.get_inputs()[0].shape
+input_data = input_data.astype(np.float32) / 255.0
+import time
+
+# Record the start time
+start_time = time.time()
+# Run the model and get the prediction
+prediction = sess.run(output_name, {input_name[0]: input_data})[0]
+end_time = time.time()
+# Calculate the elapsed time in milliseconds
+elapsed_time = (end_time - start_time) * 1000
+
+# Print the elapsed time
+print("Elapsed time:", elapsed_time)
+result =prediction[0,...]
+result =result[...,0]
+prediction = prediction.reshape((512, 540))
+
+import matplotlib.pyplot as plt
+
+# Display the image
+plt.imshow(result)
+plt.show()
+
+
